@@ -2,6 +2,7 @@ package com.codigotext.moviedb.ui.upcoming_movie
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -27,9 +28,9 @@ class FragmentUpcomeMovies : Fragment(R.layout.fragment_movies) {
     private val movieAdapter by lazy {
         MovieListAdapter {
             val detailMovieIntent = Intent(requireActivity(), ActivityMovieDetail::class.java)
-            val bundle=Bundle()
-            bundle.putSerializable(INTENT_KEY.DATA.name,it)
-            detailMovieIntent.putExtra(INTENT_KEY.DATA.name,bundle)
+            val bundle = Bundle()
+            bundle.putSerializable(INTENT_KEY.DATA.name, it)
+            detailMovieIntent.putExtra(INTENT_KEY.DATA.name, bundle)
             startActivity(detailMovieIntent)
         }
 
@@ -51,7 +52,10 @@ class FragmentUpcomeMovies : Fragment(R.layout.fragment_movies) {
                 layoutManager = GridLayoutManager(activity, 2)
                 setHasFixedSize(true)
             }
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+
+            loadMovie()
+
+            viewLifecycleOwner.lifecycleScope.launchWhenCreated {
                 viewModel.upcomingMovie.collect {
                     val result = it ?: return@collect
                     refreshView.isRefreshing = result is Resource.Loading
@@ -59,7 +63,6 @@ class FragmentUpcomeMovies : Fragment(R.layout.fragment_movies) {
                     tvErrorView.isVisible = result.error != null && result.data.isNullOrEmpty()
                     btnRetry.isVisible = result.error != null && result.data.isNullOrEmpty()
                     tvErrorView.text = result.error?.localizedMessage
-
                     movieAdapter.submitList(result.data) {
                         if (viewModel.scrollingToTopAfterRefresh) {
                             recMoive.scrollToPosition(0)
@@ -81,7 +84,7 @@ class FragmentUpcomeMovies : Fragment(R.layout.fragment_movies) {
                 viewModel.onRefresh()
             }
 
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewLifecycleOwner.lifecycleScope.launchWhenCreated {
                 viewModel.events.collect {
                     when (it) {
                         is Event.showErrorMessage -> {
@@ -102,7 +105,13 @@ class FragmentUpcomeMovies : Fragment(R.layout.fragment_movies) {
     }
 
     override fun onStart() {
+        Log.d("lifecycle", "-------- start")
         super.onStart()
+    }
+
+
+    private fun loadMovie() {
         viewModel.onStart()
+
     }
 }
