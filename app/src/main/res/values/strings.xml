@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MovieDB</string>
+    <string name="lbl_home">Home</string>
+    <string name="lal_populator">Populator</string>
+    <string name="lbl_fav">Favourite</string>
+    <string name="message_no_movie">No Movie Yet</string>
+    <string name="error_unknow">I dont know what happen </string>
+</resources>
